@@ -85,11 +85,13 @@ var Yez = absurd.component('Yez', {
 	},
 
 	connect: function() {
+		  console.log('this is not');
 
 		if(this.connected) { return; }
 
 		var self = this;
 
+/*
 		try {
 			self.ipc = require('electron').ipcRenderer;
 			self.ipc.on('theme', function(event, data) { 
@@ -100,8 +102,9 @@ var Yez = absurd.component('Yez', {
 				console.log('ipc tray', {action: 'tray', show: data, id: 'ipc'});
 			});
 		} catch (error) {
-		  // console.log('this is not an electron window');
+		  console.log('this is not an electron window');
 		}
+*/
 		this.socket = io.connect('http://' + this.host + ':' + this.port, {
 			'force new connection': true
 		});
@@ -124,12 +127,12 @@ var Yez = absurd.component('Yez', {
 			self.savedAliases = data.aliases || '';
 			self.defaultCWD = normalizePath(data.cwd);
 			self.setTasks(data);
-			if (data.tray) {
-				self.toggleTray({show: 'true'});
-			}
-			if (data.dark) {
-				self.setTheme({theme: 'dark'});
-			}
+			//if (data.tray) {
+			//	self.toggleTray({show: 'true'});
+			//}
+			//if (data.dark) {
+			//	self.setTheme({theme: 'dark'});
+			//}
 		});
 		this.socket.on('response', function(data) {
 			if(self.tasks[data.id]) {
@@ -142,12 +145,12 @@ var Yez = absurd.component('Yez', {
 			}
 		});
 		this.socket.on('tray', function(data) {
-		    if (Yez.ipc) Yez.ipc.send('data', data);
-			self.toggleTray(data);
+		    //if (Yez.ipc) Yez.ipc.send('data', data);
+			//self.toggleTray(data);
 		});		 
 		this.socket.on('theme', function(data) {
-		    if (Yez.ipc) Yez.ipc.send('data', data);
-			self.setTheme(data);
+		    //if (Yez.ipc) Yez.ipc.send('data', data);
+		//	self.setTheme(data);
 		});
 		this.socket.on('updateTasks', function(data) { 
 		    self.setTasks(data);
@@ -156,11 +159,13 @@ var Yez = absurd.component('Yez', {
 		    this.savedAliases = data.aliases;
 		});
 		setTimeout(function() {
+try{
 			if(!self.connected) {
 				self.retry += 1;
 				self.status.setStatus(false, self.retry);
 				self.connect();
 			}
+} catch(e) { console.log(e); }
 		}, 5000);
 		// showing home page and enabling the key binding
         this.showHome().initializeKeyPress();

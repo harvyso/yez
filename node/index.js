@@ -10,7 +10,6 @@ var app = require('http').createServer(),
     defaultCWD = path.normalize(process.cwd()),
     runners = {},
     lastActive = 0,
-    electron = require('electron-prebuilt'),    
     proc = require('child_process'),
     argv = require('yargs').argv,
     httpServer = require('http-server');
@@ -144,29 +143,9 @@ var readAliases = function () {
 
 readAliases();
 
-var spawnElectron;
-
-var startElectron = function () {
-    if (!spawnElectron) {
-        spawnElectron = proc.spawn(electron, [
-            path.resolve(__dirname + '/../electron/tray.js'),
-            JSON.stringify({
-                pid: process.pid, 
-                tray: argv.tray, 
-                dark: argv.dark,
-                port: httpPort
-            })
-        ]);
-        spawnElectron.on('close', function () {
-             spawnElectron = null;
-        });
-    }
-};
-
-if (argv.tray) startElectron();
-
-io.set('log level', 1);
+io.set('log level', 2);
 io.sockets.on('connection', function (socket) {
+	console.log(socket);
     socket.emit('initial', { 
       cwd: defaultCWD,
       tasks: savedTasks,
@@ -177,6 +156,7 @@ io.sockets.on('connection', function (socket) {
       tray: argv.tray
     });
     socket.on('data', function (data) {
+console.log(data);
         if(!data || !data.id) return;
         var id = data.id;
         switch(data.action) {
@@ -301,7 +281,7 @@ io.sockets.on('connection', function (socket) {
                 data.id = 'update';
                 io.sockets.emit('tray', data);
                 argv.tray = Boolean(data.show)
-                if (argv.tray) startElectron();
+                sonsole.log( 'if (argv.tray) startElectron();' );
             break;
             /********************************************************************** theme */
             case 'theme':
